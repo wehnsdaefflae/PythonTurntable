@@ -59,13 +59,13 @@ def move_distance(speed: float, distance_deg: float):
 def move_acc(distance_deg: float):
     acc_dist = 10
     if distance_deg < 2. * acc_dist:
-        move_distance(100., distance_deg)
+        move_distance(20., distance_deg)
     else:
         for _i in range(acc_dist):
-            move_distance(40. * _i + 100., 1.)
+            move_distance(8. * _i + 20., 1.)
         move_distance(500., distance_deg - 2. * acc_dist)
         for _i in range(acc_dist):
-            move_distance(-40. * _i + 500., 1.)
+            move_distance(-8. * _i + 100., 1.)
 
 
 def trigger_shot():
