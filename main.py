@@ -58,11 +58,13 @@ def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float
     if 0. < distance_deg:
         while current_total < distance_abs:
             current_speed = speed_fun(current_total, distance_abs)
+            print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
             step_forward(current_speed)
             current_total += ratio
     else:
         while current_total < distance_abs:
             current_speed = speed_fun(current_total, distance_abs)
+            print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
             step_backward(current_speed)
             current_total += ratio
 
@@ -86,7 +88,7 @@ def speed_function(current_degree: float, total_degree: float) -> float:
     if current_degree >= until_slowdown:
         return (min_speed - max_speed) / change_distance * (current_degree - until_slowdown) + max_speed
 
-    return min_speed
+    return max_speed
 
 
 def start_recording(no_photos: int):
