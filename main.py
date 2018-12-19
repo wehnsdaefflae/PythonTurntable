@@ -56,8 +56,44 @@ def move_distance(speed: float, distance_deg: float):
                 total += ratio
 
 
-if __name__ == "__main__":
+def move_acc(distance_deg: float):
+    acc_dist = 10
+    if distance_deg < 2. * acc_dist:
+        move_distance(100., distance_deg)
+    else:
+        for _i in range(acc_dist):
+            move_distance(40. * _i + 100., 1.)
+        move_distance(500., distance_deg - 2. * acc_dist)
+        for _i in range(acc_dist):
+            move_distance(-40. * _i + 500., 1.)
+
+
+def trigger_shot():
+    print("shot!")
+
+
+def start_recording(no_photos: int):
+    segment = 360. / no_photos
+    for _i in range(no_photos):
+        trigger_shot()
+        print("{:d}/{:d}".format(_i + 1, no_photos))
+        move_acc(segment)
+        if _i < no_photos - 1:
+            time.sleep(1.)
+
+
+def test_distance_movement():
     while True:
         selected_speed = float(input("speed [-500, 500]: "))
         selected_distance = float(input("distance [0, 360]: "))
         move_distance(selected_speed, selected_distance)
+
+
+def test_full_circle():
+    while True:
+        selected_no_photos = int(input("number of photos: "))
+        start_recording(selected_no_photos)
+
+
+if __name__ == "__main__":
+    test_full_circle()
