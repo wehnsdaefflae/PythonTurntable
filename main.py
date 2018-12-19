@@ -43,6 +43,8 @@ try:
         time.sleep(delay)
 
 except ImportError:
+    print("debug mode")
+
     def step_forward(speed: float):
         time.sleep(1. / speed)
 
