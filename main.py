@@ -63,7 +63,7 @@ def move_acc(distance_deg: float):
     else:
         for _i in range(acc_dist):
             move_distance(8. * _i + 20., 1.)
-        move_distance(500., distance_deg - 2. * acc_dist)
+        move_distance(100., distance_deg - 2. * acc_dist)
         for _i in range(acc_dist):
             move_distance(-8. * _i + 100., 1.)
 
