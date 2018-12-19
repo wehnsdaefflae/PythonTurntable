@@ -1,48 +1,53 @@
-'''
-    Stepper Motor interfacing with Raspberry Pi
-    http:///www.electronicwings.com
-'''
-from typing import Callable, Optional
 
-import RPi.GPIO as GPIO
+from typing import Callable
+
 import time
-import sys
 
-# assign GPIO pins for motor
-motor_channel = 29, 31, 33, 35
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BOARD)
+try:
+    import RPi.GPIO as GPIO
 
-# for defining more than 1 GPIO channel as input/output use
-GPIO.setup(motor_channel, GPIO.OUT)
+    # assign GPIO pins for motor
+    motor_channel = 29, 31, 33, 35
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
 
-
-def step_forward(speed: float):
-    assert 0. < speed
-    delay = 1. / speed
-
-    GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
-    time.sleep(delay)
-    GPIO.output(motor_channel, (GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW))
-    time.sleep(delay)
-    GPIO.output(motor_channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.LOW))
-    time.sleep(delay)
-    GPIO.output(motor_channel, (GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
-    time.sleep(delay)
+    # for defining more than 1 GPIO channel as input/output use
+    GPIO.setup(motor_channel, GPIO.OUT)
 
 
-def step_backward(speed: float):
-    assert 0. < speed
-    delay = 1. / speed
+    def step_forward(speed: float):
+        assert 0. < speed
+        delay = 1. / speed
 
-    GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
-    time.sleep(delay)
-    GPIO.output(motor_channel, (GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
-    time.sleep(delay)
-    GPIO.output(motor_channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.LOW))
-    time.sleep(delay)
-    GPIO.output(motor_channel, (GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW))
-    time.sleep(delay)
+        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
+        time.sleep(delay)
+        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW))
+        time.sleep(delay)
+        GPIO.output(motor_channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.LOW))
+        time.sleep(delay)
+        GPIO.output(motor_channel, (GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
+        time.sleep(delay)
+
+
+    def step_backward(speed: float):
+        assert 0. < speed
+        delay = 1. / speed
+
+        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
+        time.sleep(delay)
+        GPIO.output(motor_channel, (GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
+        time.sleep(delay)
+        GPIO.output(motor_channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.LOW))
+        time.sleep(delay)
+        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW))
+        time.sleep(delay)
+
+except ImportError:
+    def step_forward(speed: float):
+        time.sleep(1. / speed)
+
+    def step_backward(speed: float):
+        time.sleep(1. / speed)
 
 
 def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
@@ -75,11 +80,11 @@ def speed_function(current_degree: float, total_degree: float) -> float:
         return min_speed
 
     if current_degree < change_distance:
-        return (max_speed - min_speed) / change_distance * current_degree
+        return (max_speed - min_speed) / change_distance * current_degree + min_speed
 
     until_slowdown = total_degree - change_distance
     if current_degree >= until_slowdown:
-        return (min_speed - max_speed) / change_distance * (current_degree - until_slowdown)
+        return (min_speed - max_speed) / change_distance * (current_degree - until_slowdown) + max_speed
 
     return min_speed
 
