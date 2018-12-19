@@ -45,7 +45,7 @@ def step_backward(speed: float):
     time.sleep(delay)
 
 
-def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d: 100.):
+def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
     ratio = 360. / 512.
     distance_abs = abs(distance_deg)
 
@@ -98,7 +98,7 @@ def test_distance_movement():
     while True:
         selected_speed = float(input("speed [-500, 500]: "))
         selected_distance = float(input("distance [0, 360]: "))
-        move_distance(selected_distance, speed_fun=lambda _d: selected_speed)
+        move_distance(selected_distance, speed_fun=lambda _d, _t: selected_speed)
 
 
 def test_full_circle():
