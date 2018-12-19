@@ -89,9 +89,10 @@ def start_recording(no_photos: int):
     for _i in range(no_photos):
         trigger_shot()
         print("{:d}/{:d}".format(_i + 1, no_photos))
-        move_distance(segment)
+        move_distance(segment, speed_fun=speed_function)
         if _i < no_photos - 1:
             time.sleep(1.)
+    print("done!")
 
 
 def test_distance_movement():
