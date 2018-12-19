@@ -4,28 +4,28 @@ from typing import Callable
 import time
 
 try:
-    import RPi.GPIO as GPIO
+    import RPi.GPIO
 
     # assign GPIO pins for motor
     motor_channel = 29, 31, 33, 35
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BOARD)
+    RPi.GPIO.setwarnings(False)
+    RPi.GPIO.setmode(RPi.GPIO.BOARD)
 
     # for defining more than 1 GPIO channel as input/output use
-    GPIO.setup(motor_channel, GPIO.OUT)
+    RPi.GPIO.setup(motor_channel, RPi.GPIO.OUT)
 
 
     def step_forward(speed: float):
         assert 0. < speed
         delay = 1. / speed
 
-        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH))
         time.sleep(delay)
-        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW))
         time.sleep(delay)
-        GPIO.output(motor_channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.LOW))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW))
         time.sleep(delay)
-        GPIO.output(motor_channel, (GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH))
         time.sleep(delay)
 
 
@@ -33,13 +33,13 @@ try:
         assert 0. < speed
         delay = 1. / speed
 
-        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH))
         time.sleep(delay)
-        GPIO.output(motor_channel, (GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH))
         time.sleep(delay)
-        GPIO.output(motor_channel, (GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.LOW))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW))
         time.sleep(delay)
-        GPIO.output(motor_channel, (GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW))
+        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW))
         time.sleep(delay)
 
 except ImportError:
@@ -60,13 +60,13 @@ def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float
     if 0. < distance_deg:
         while current_total < distance_abs:
             current_speed = speed_fun(current_total, distance_abs)
-            print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
+            # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
             step_forward(current_speed)
             current_total += ratio
     else:
         while current_total < distance_abs:
             current_speed = speed_fun(current_total, distance_abs)
-            print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
+            # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
             step_backward(current_speed)
             current_total += ratio
 
@@ -94,6 +94,11 @@ def speed_function(current_degree: float, total_degree: float) -> float:
 
 
 def start_recording(no_photos: int):
+    if no_photos < 1:
+        return
+    if no_photos >= 360:
+        print("please select a number below 360")
+
     segment = 360. / no_photos
     for _i in range(no_photos):
         trigger_shot()
