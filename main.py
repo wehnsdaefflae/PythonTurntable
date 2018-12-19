@@ -2,6 +2,8 @@
     Stepper Motor interfacing with Raspberry Pi
     http:///www.electronicwings.com
 '''
+from typing import Callable, Optional
+
 import RPi.GPIO as GPIO
 import time
 import sys
@@ -15,7 +17,10 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(motor_channel, GPIO.OUT)
 
 
-def step_forward(delay: float):
+def step_forward(speed: float):
+    assert 0. < speed
+    delay = 1. / speed
+
     GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
     time.sleep(delay)
     GPIO.output(motor_channel, (GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW))
@@ -26,7 +31,10 @@ def step_forward(delay: float):
     time.sleep(delay)
 
 
-def step_backward(delay: float):
+def step_backward(speed: float):
+    assert 0. < speed
+    delay = 1. / speed
+
     GPIO.output(motor_channel, (GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH))
     time.sleep(delay)
     GPIO.output(motor_channel, (GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH))
@@ -37,39 +45,43 @@ def step_backward(delay: float):
     time.sleep(delay)
 
 
-def move_distance(speed: float, distance_deg: float):
-    assert -500. <= speed <= 500.
+def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d: 100.):
+    ratio = 360. / 512.
+    distance_abs = abs(distance_deg)
 
-    if speed != 0.:
-        p = abs(1. / speed)
-        ratio = 360. / 512.
-        distance_abs = abs(distance_deg)
-
-        total = 0.
-        if (0. < speed) == (0. < distance_deg):
-            while total < distance_abs:
-                step_forward(p)
-                total += ratio
-        else:
-            while total < distance_abs:
-                step_backward(p)
-                total += ratio
-
-
-def move_acc(distance_deg: float):
-    acc_dist = 10
-    if distance_deg < 2. * acc_dist:
-        move_distance(20., distance_deg)
+    current_total = 0.
+    if 0. < distance_deg:
+        while current_total < distance_abs:
+            current_speed = speed_fun(current_total, distance_abs)
+            step_forward(current_speed)
+            current_total += ratio
     else:
-        for _i in range(acc_dist):
-            move_distance(8. * _i + 20., 1.)
-        move_distance(100., distance_deg - 2. * acc_dist)
-        for _i in range(acc_dist):
-            move_distance(-8. * _i + 100., 1.)
+        while current_total < distance_abs:
+            current_speed = speed_fun(current_total, distance_abs)
+            step_backward(current_speed)
+            current_total += ratio
 
 
 def trigger_shot():
     print("shot!")
+
+
+def speed_function(current_degree: float, total_degree: float) -> float:
+    max_speed = 100.
+    min_speed = 20.
+    change_distance = 10.
+
+    if total_degree < 2. * change_distance:
+        return min_speed
+
+    if current_degree < change_distance:
+        return (max_speed - min_speed) / change_distance * current_degree
+
+    until_slowdown = total_degree - change_distance
+    if current_degree >= until_slowdown:
+        return (min_speed - max_speed) / change_distance * (current_degree - until_slowdown)
+
+    return min_speed
 
 
 def start_recording(no_photos: int):
@@ -77,7 +89,7 @@ def start_recording(no_photos: int):
     for _i in range(no_photos):
         trigger_shot()
         print("{:d}/{:d}".format(_i + 1, no_photos))
-        move_acc(segment)
+        move_distance(segment)
         if _i < no_photos - 1:
             time.sleep(1.)
 
@@ -86,7 +98,7 @@ def test_distance_movement():
     while True:
         selected_speed = float(input("speed [-500, 500]: "))
         selected_distance = float(input("distance [0, 360]: "))
-        move_distance(selected_speed, selected_distance)
+        move_distance(selected_distance, speed_fun=lambda _d: selected_speed)
 
 
 def test_full_circle():
