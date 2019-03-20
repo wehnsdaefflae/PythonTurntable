@@ -57,6 +57,8 @@ class Menu:
         raise NotImplementedError()
 
     def draw(self):
+        Display.draw.rectangle((0, 0, Display.width, Display.height), outline=0, fill=0)
+
         self._draw()
 
         Display.display.image(Display.image)
