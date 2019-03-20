@@ -52,8 +52,12 @@ class Menu:
     def __hash__(self) -> int:
         return self._identity
 
-    def draw(self):
+    def _draw(self):
         raise NotImplementedError()
+
+    def draw(self):
+        self._draw()
+        Display.display.display()
 
     def send_input(self, pin_input: Set[Pin]):
         raise NotImplementedError()
@@ -81,13 +85,10 @@ class AdaFruitMenu:
     def loop(self):
         while True:
             pressed = self.buttons_pressed()
-            for _b in self._pins:
-                print("button {:s} pressed: {:s}".format(_b.name, str(_b in pressed)))
 
-            if 0 < len(pressed):
-                self._current_menu.send_input(pressed)
-
+            self._current_menu.send_input(pressed)
             self._current_menu.draw()
+
             time.sleep(.1)
 
 
@@ -96,9 +97,8 @@ class MainMenu(Menu):
         super().__init__()
         self._text = "<empty>"
 
-    def draw(self):
-        Display.draw.text((64, 32), self._text)
-        Display.display.display()
+    def _draw(self):
+        Display.draw.text((0, 0), self._text)
 
     def send_input(self, pin_input: Set[Pin]):
         if 0 < len(pin_input):
