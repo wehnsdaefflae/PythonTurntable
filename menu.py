@@ -57,6 +57,7 @@ class Menu:
         raise NotImplementedError()
 
     def draw(self):
+        Display.display.clear()
         Display.draw.rectangle((0, 0, Display.width, Display.height), outline=0, fill=0)
 
         self._draw()
@@ -103,13 +104,11 @@ class MainMenu(Menu):
         self._text = "<empty>"
 
     def _draw(self):
-        Display.display.clear()
-        Display.draw.text((0, 0), self._text, font=Display.font, fill=255)
+        Display.draw.text((0, 10), self._text, font=Display.font, fill=255)
 
     def send_input(self, pin_input: Set[Pin]):
         if 0 < len(pin_input):
             self._text = "{:.04f}".format(random.random())
-            print(self._text)
 
 
 def main():
