@@ -3,7 +3,7 @@ import random
 import time
 from collections import deque
 from typing import Dict, Optional, Type
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw  # , ImageFont
 
 import Adafruit_SSD1306
 
@@ -105,7 +105,7 @@ class MainMenu(Menu):
         self._text = "<empty>"
 
     def draw(self):
-        Display.draw.text(64, 32, self._text)
+        Display.draw.text((64, 32), self._text)
 
     def send_input(self, pin_input: Pin):
         self._text = "{:.04f}".format(random.random())
