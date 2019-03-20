@@ -3,53 +3,43 @@ from typing import Callable
 
 import time
 
-try:
-    import RPi.GPIO
+import RPi.GPIO
 
-    # assign GPIO pins for motor
-    motor_channel = 36, 38, 40, 35
-    RPi.GPIO.setwarnings(False)
-    RPi.GPIO.setmode(RPi.GPIO.BOARD)
+# assign GPIO pins for motor
+motor_channel = 36, 38, 40, 35
+RPi.GPIO.setwarnings(False)
+RPi.GPIO.setmode(RPi.GPIO.BOARD)
 
-    # for defining more than 1 GPIO channel as input/output use
-    RPi.GPIO.setup(motor_channel, RPi.GPIO.OUT)
-
-
-    def step_forward(speed: float):
-        assert 0. < speed
-        delay = 1. / speed
-
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH))
-        time.sleep(delay)
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW))
-        time.sleep(delay)
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW))
-        time.sleep(delay)
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH))
-        time.sleep(delay)
+# for defining more than 1 GPIO channel as input/output use
+RPi.GPIO.setup(motor_channel, RPi.GPIO.OUT)
 
 
-    def step_backward(speed: float):
-        assert 0. < speed
-        delay = 1. / speed
+def step_forward(speed: float):
+    assert 0. < speed
+    delay = 1. / speed
 
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH))
-        time.sleep(delay)
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH))
-        time.sleep(delay)
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW))
-        time.sleep(delay)
-        RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW))
-        time.sleep(delay)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH))
+    time.sleep(delay)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW))
+    time.sleep(delay)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW))
+    time.sleep(delay)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH))
+    time.sleep(delay)
 
-except ImportError:
-    print("debug mode")
 
-    def step_forward(speed: float):
-        time.sleep(1. / speed)
+def step_backward(speed: float):
+    assert 0. < speed
+    delay = 1. / speed
 
-    def step_backward(speed: float):
-        time.sleep(1. / speed)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH))
+    time.sleep(delay)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH))
+    time.sleep(delay)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.LOW, RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW))
+    time.sleep(delay)
+    RPi.GPIO.output(motor_channel, (RPi.GPIO.HIGH, RPi.GPIO.HIGH, RPi.GPIO.LOW, RPi.GPIO.LOW))
+    time.sleep(delay)
 
 
 def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
