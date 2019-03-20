@@ -24,16 +24,16 @@ class Display:
 
 
 class Pin(enum.Enum):
-    # BOARD layout!
-    up = 11
-    down = 15
-    left = 13
-    right = 16
+    # BCM layout!
+    up = 17
+    down = 22
+    left = 27
+    right = 23
 
-    center = 7
+    center = 4
 
-    five = 29
-    six = 31
+    five = 5
+    six = 6
 
 
 class Menu:
@@ -66,7 +66,7 @@ class AdaFruitMenu:
         self._last_menu = deque(maxlen=1000)
         self._current_menu = main_menu
 
-        RPi.GPIO.setmode(RPi.GPIO.BOARD)
+        RPi.GPIO.setmode(RPi.GPIO.BCM)
         for _each_pin in self._pins:
             RPi.GPIO.setup(_each_pin, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
 
