@@ -81,6 +81,8 @@ class AdaFruitMenu:
         while True:
             pin_input = self.button_released()
             if pin_input is not None:
+                print("button {:s} has been pressed".format(pin_input.name))
+
                 if pin_input == self._back_pin:
                     if 0 < len(self._last_menu):
                         self._current_menu = self._last_menu.pop()
@@ -90,13 +92,15 @@ class AdaFruitMenu:
 
                     new_menu = self._current_menu.sub_menus.get(pin_input)
                     if new_menu is None:
-                        time.sleep(.01)
+                        pass
+                        # time.sleep(.01)
 
                     else:
                         self._last_menu.append(self._current_menu)
                         self._current_menu = new_menu
 
             self._current_menu.draw()
+            time.sleep(.01)
 
 
 class MainMenu(Menu):
