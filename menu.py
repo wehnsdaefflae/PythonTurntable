@@ -3,7 +3,7 @@ import random
 import time
 from collections import deque
 from typing import Dict, Optional, Type
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 import Adafruit_SSD1306
 
