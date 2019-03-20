@@ -101,14 +101,38 @@ class AdaFruitMenu:
 class MainMenu(Menu):
     def __init__(self):
         super().__init__()
-        self._text = "<empty>"
+        self._no_photos = 36
 
     def _draw(self):
-        Display.draw.text((0, 10), self._text, font=Display.font, fill=255)
+        Display.draw.multiline_text((0, 20), "number of\nphotographs:", font=Display.font, fill=255)
+        Display.draw.text((50, 15), "{:02d}".format(self._no_photos), font=Display.font, fill=255)
+
+        Display.draw.text((70, 20), "+5", font=Display.font, fill=155)
+        Display.draw.text((70, 40), "-5", font=Display.font, fill=155)
+        Display.draw.text((60, 30), "-1", font=Display.font, fill=155)
+        Display.draw.text((80, 30), "+1", font=Display.font, fill=155)
+
+        Display.draw.text((110, 20), "confirm", font=Display.font, fill=155)
+        Display.draw.text((90, 40), "reset", font=Display.font, fill=155)
 
     def send_input(self, pin_input: Set[Pin]):
-        if 0 < len(pin_input):
-            self._text = "{:.04f}".format(random.random())
+        if Pin.up in pin_input:
+            self._no_photos = max(self._no_photos + 5, 99)
+
+        elif Pin.down in pin_input:
+            self._no_photos = min(self._no_photos - 5, 0)
+
+        elif Pin.left in pin_input:
+            self._no_photos = min(self._no_photos - 1, 0)
+
+        elif Pin.right in pin_input:
+            self._no_photos = max(self._no_photos + 1, 99)
+
+        elif Pin.five in pin_input:
+            self._no_photos = 36
+
+        elif Pin.six in pin_input:
+            print("starting {:0d} photos".format(self._no_photos))
 
 
 def main():
