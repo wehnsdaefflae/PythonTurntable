@@ -68,11 +68,11 @@ class AdaFruitMenu:
 
         RPi.GPIO.setmode(RPi.GPIO.BCM)
         for _each_pin in self._pins:
-            RPi.GPIO.setup(_each_pin, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
+            RPi.GPIO.setup(_each_pin.value, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
 
     def button_released(self) -> Optional[Pin]:
         for _each_pin in self._pins:
-            if RPi.GPIO.input(_each_pin):
+            if RPi.GPIO.input(_each_pin.value):
                 return _each_pin
 
         return None
