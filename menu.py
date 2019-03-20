@@ -18,9 +18,9 @@ class Display:
 
     width = display.width
     height = display.height
-    _image = Image.new("1", (width, height))
+    image = Image.new("1", (width, height))
 
-    draw = ImageDraw.Draw(_image)
+    draw = ImageDraw.Draw(image)
 
     font = ImageFont.load_default()
 
@@ -58,6 +58,8 @@ class Menu:
 
     def draw(self):
         self._draw()
+
+        Display.display.image(Display.image)
         Display.display.display()
 
     def send_input(self, pin_input: Set[Pin]):
