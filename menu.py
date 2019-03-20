@@ -5,6 +5,8 @@ from collections import deque
 from typing import Dict, Optional, Type
 from PIL import Image, ImageDraw
 
+import Adafruit_SSD1306
+
 import RPi.GPIO
 
 
@@ -113,7 +115,9 @@ def main():
     ada_menu = AdaFruitMenu(main_menu, Pin)
     try:
         ada_menu.loop()
+
     except KeyboardInterrupt as e:
         Display.display.clear()
+        RPi.GPIO.cleanup()
         raise e
 
