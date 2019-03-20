@@ -85,7 +85,7 @@ class AdaFruitMenu:
             pressed = self.buttons_pressed()
             if 0 < len(pressed):
                 for _b in self._pins:
-                    print("button {:s} pressed: {:s}".format(_b.name, _b in pressed))
+                    print("button {:s} pressed: {:s}".format(_b.name, str(_b in pressed)))
 
                 if self._back_pin in pressed:
                     if 0 < len(self._last_menu):
