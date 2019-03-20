@@ -9,6 +9,8 @@ from PIL import Image, ImageDraw, ImageFont
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 
+from main import start_recording
+
 
 class Display:
     display = Adafruit_SSD1306.SSD1306_128_64(rst=24)
@@ -131,6 +133,7 @@ class MainMenu(Menu):
 
         elif Pin.six in pin_input:
             print("starting {:0d} photos".format(self._no_photos))
+            start_recording(self._no_photos)
 
 
 def main():
