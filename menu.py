@@ -106,6 +106,7 @@ class MainMenu(Menu):
 
     def draw(self):
         Display.draw.text((64, 32), self._text)
+        Display.display.display()
 
     def send_input(self, pin_input: Pin):
         self._text = "{:.04f}".format(random.random())
