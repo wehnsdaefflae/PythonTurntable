@@ -103,7 +103,7 @@ class MainMenu(Menu):
         self._no_photos = 36
 
     def _draw(self):
-        Display.draw.text((20, 30), "{:02d}".format(self._no_photos), font=Display.font, fill=255)
+        Display.draw.text((10, 30), "{:02d}".format(self._no_photos), font=Display.font, fill=255)
 
         Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
         Display.draw.text((40, 40), "-5", font=Display.font, fill=155)
@@ -111,7 +111,7 @@ class MainMenu(Menu):
         Display.draw.text((50, 30), "+1", font=Display.font, fill=155)
 
         Display.draw.text((80, 20), "confirm", font=Display.font, fill=155)
-        Display.draw.text((60, 40), "reset", font=Display.font, fill=155)
+        Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
 
     def send_input(self, pin_input: Set[Pin]):
         if Pin.up in pin_input:
