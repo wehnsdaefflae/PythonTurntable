@@ -7,7 +7,7 @@ try:
     import RPi.GPIO
 
     # assign GPIO pins for motor
-    motor_channel = 29, 31, 33, 35
+    motor_channel = 36, 38, 40, 35
     RPi.GPIO.setwarnings(False)
     RPi.GPIO.setmode(RPi.GPIO.BOARD)
 
