@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 
-from main import start_recording
+from motor import MotorControl
 
 
 class Display:
@@ -105,7 +105,7 @@ class MainMenu(Menu):
         self._no_photos = 36
 
     def _draw(self):
-        Display.draw.text((10, 30), "{:02d}".format(self._no_photos), font=Display.font, fill=255)
+        Display.draw.text((10, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
 
         Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
         Display.draw.text((40, 40), "-5", font=Display.font, fill=155)
@@ -117,7 +117,7 @@ class MainMenu(Menu):
 
     def send_input(self, pin_input: Set[Pin]):
         if Pin.up in pin_input:
-            self._no_photos = min(self._no_photos + 5, 99)
+            self._no_photos = min(self._no_photos + 5, 359)
 
         elif Pin.down in pin_input:
             self._no_photos = max(self._no_photos - 5, 0)
@@ -126,14 +126,14 @@ class MainMenu(Menu):
             self._no_photos = max(self._no_photos - 1, 0)
 
         elif Pin.right in pin_input:
-            self._no_photos = min(self._no_photos + 1, 99)
+            self._no_photos = min(self._no_photos + 1, 359)
 
         elif Pin.five in pin_input:
             self._no_photos = 36
 
         elif Pin.six in pin_input:
             print("starting {:0d} photos".format(self._no_photos))
-            start_recording(self._no_photos)
+            MotorControl.start_recording(self._no_photos)
 
 
 def main():
