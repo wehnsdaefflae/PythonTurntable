@@ -3,9 +3,8 @@ import RPi.GPIO
 import enum
 import random
 import time
-from collections import deque
 from typing import Dict, Optional, Type, Set
-from PIL import Image, ImageDraw  # , ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -22,6 +21,8 @@ class Display:
     _image = Image.new("1", (width, height))
 
     draw = ImageDraw.Draw(_image)
+
+    font = ImageFont.load_default()
 
 
 class Pin(enum.Enum):
@@ -98,7 +99,7 @@ class MainMenu(Menu):
         self._text = "<empty>"
 
     def _draw(self):
-        Display.draw.text((0, 0), self._text)
+        Display.draw.text((0, 0), self._text, font=Display.font, fill=255)
 
     def send_input(self, pin_input: Set[Pin]):
         if 0 < len(pin_input):
