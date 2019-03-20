@@ -104,6 +104,7 @@ class MainMenu(Menu):
     def send_input(self, pin_input: Set[Pin]):
         if 0 < len(pin_input):
             self._text = "{:.04f}".format(random.random())
+            print(self._text)
 
 
 def main():
