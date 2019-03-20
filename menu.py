@@ -75,27 +75,35 @@ class AdaFruitMenu:
         self._back_pin = self._pins.six
 
         self._current_menu = main_menu
+        self._pressed = set()
+        self._pressed_last = set()
+        self._released = set()
 
         RPi.GPIO.setmode(RPi.GPIO.BCM)
         RPi.GPIO.setup(tuple(_each_pin.value for _each_pin in self._pins), RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
 
-    def buttons_pressed(self) -> Set[Pin]:
-        pressed = set()
-        for _each_pin in self._pins:
-            value = RPi.GPIO.input(_each_pin.value)
-            if not value:
-                pressed.add(_each_pin)
+    def update_input_state(self):
+        self._pressed_last.clear()
+        self._pressed_last.update(self._pressed)
 
-        return pressed
+        for _each_pin in self._pins:
+            if RPi.GPIO.input(_each_pin.value):
+                self._pressed.discard(_each_pin)
+            else:
+                self._pressed.add(_each_pin)
+
+        for _each_pin in self._pins:
+            if _each_pin in self._pressed_last and _each_pin not in self._pressed:
+                self._released.add(_each_pin)
+            else:
+                self._released.discard(_each_pin)
 
     def loop(self):
         while True:
-            pressed = self.buttons_pressed()
-
-            self._current_menu.send_input(pressed)
+            self._current_menu.send_input(self._released)
             self._current_menu.draw()
 
-            time.sleep(.1)
+            time.sleep(.01)
 
 
 class MainMenu(Menu):
