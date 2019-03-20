@@ -68,9 +68,9 @@ class AdaFruitMenu:
 
         RPi.GPIO.setmode(RPi.GPIO.BCM)
         for _each_pin in self._pins:
-            RPi.GPIO.setup(_each_pin.value, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
+            RPi.GPIO.setup(_each_pin.value, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
 
-    def button_released(self) -> Optional[Pin]:
+    def button_pressed(self) -> Optional[Pin]:
         for _each_pin in self._pins:
             if RPi.GPIO.input(_each_pin.value):
                 return _each_pin
@@ -79,9 +79,9 @@ class AdaFruitMenu:
 
     def loop(self):
         while True:
-            pin_input = self.button_released()
+            pin_input = self.button_pressed()
             if pin_input is not None:
-                print("button {:s} has been pressed".format(pin_input.name))
+                print("button {:s} has been released".format(pin_input.name))
 
                 if pin_input == self._back_pin:
                     if 0 < len(self._last_menu):
