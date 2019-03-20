@@ -6,9 +6,9 @@ import time
 import RPi.GPIO
 
 # assign GPIO pins for motor
-motor_channel = 36, 38, 40, 35
+motor_channel = 16, 20, 21, 19
 RPi.GPIO.setwarnings(False)
-RPi.GPIO.setmode(RPi.GPIO.BOARD)
+RPi.GPIO.setmode(RPi.GPIO.BCM)
 
 # for defining more than 1 GPIO channel as input/output use
 RPi.GPIO.setup(motor_channel, RPi.GPIO.OUT)
