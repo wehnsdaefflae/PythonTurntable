@@ -9,13 +9,13 @@ import RPi.GPIO
 
 
 class Display:
-    _display = Adafruit_SSD1306.SSD1306_128_64(rst=24)
-    _display.begin()
-    _display.clear()
-    _display.display()
+    display = Adafruit_SSD1306.SSD1306_128_64(rst=24)
+    display.begin()
+    display.clear()
+    display.display()
 
-    width = _display.width
-    height = _display.height
+    width = display.width
+    height = display.height
     _image = Image.new("1", (width, height))
 
     draw = ImageDraw.Draw(_image)
@@ -111,4 +111,9 @@ class MainMenu(Menu):
 def main():
     main_menu = MainMenu()
     ada_menu = AdaFruitMenu(main_menu, Pin)
-    ada_menu.loop()
+    try:
+        ada_menu.loop()
+    except KeyboardInterrupt as e:
+        Display.display.clear()
+        raise e
+
