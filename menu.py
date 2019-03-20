@@ -72,6 +72,7 @@ class AdaFruitMenu:
 
     def button_pressed(self) -> Optional[Pin]:
         for _each_pin in self._pins:
+            print("{:s}: {:s}".format(_each_pin.name, str(RPi.GPIO.input(_each_pin.value))))
             if RPi.GPIO.input(_each_pin.value):
                 return _each_pin
 
@@ -81,7 +82,7 @@ class AdaFruitMenu:
         while True:
             pin_input = self.button_pressed()
             if pin_input is not None:
-                print("button {:s} has been released".format(pin_input.name))
+                print("button {:s} has been pressed".format(pin_input.name))
 
                 if pin_input == self._back_pin:
                     if 0 < len(self._last_menu):
@@ -100,7 +101,7 @@ class AdaFruitMenu:
                         self._current_menu = new_menu
 
             self._current_menu.draw()
-            time.sleep(.01)
+            time.sleep(.1)
 
 
 class MainMenu(Menu):
