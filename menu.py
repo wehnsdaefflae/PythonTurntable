@@ -114,6 +114,7 @@ class MainMenu(Menu):
 def main():
     main_menu = MainMenu()
     ada_menu = AdaFruitMenu(main_menu, Pin)
+
     try:
         ada_menu.loop()
 
@@ -122,3 +123,6 @@ def main():
         RPi.GPIO.cleanup()
         raise e
 
+
+if __name__ == "__main__":
+    main()
