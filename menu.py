@@ -101,6 +101,7 @@ class MainMenu(Menu):
         self._text = "<empty>"
 
     def _draw(self):
+        Display.display.clear()
         Display.draw.text((0, 0), self._text, font=Display.font, fill=255)
 
     def send_input(self, pin_input: Set[Pin]):
