@@ -116,16 +116,16 @@ class MainMenu(Menu):
 
     def send_input(self, pin_input: Set[Pin]):
         if Pin.up in pin_input:
-            self._no_photos = max(self._no_photos + 5, 99)
+            self._no_photos = min(self._no_photos + 5, 99)
 
         elif Pin.down in pin_input:
-            self._no_photos = min(self._no_photos - 5, 0)
+            self._no_photos = max(self._no_photos - 5, 0)
 
         elif Pin.left in pin_input:
-            self._no_photos = min(self._no_photos - 1, 0)
+            self._no_photos = max(self._no_photos - 1, 0)
 
         elif Pin.right in pin_input:
-            self._no_photos = max(self._no_photos + 1, 99)
+            self._no_photos = min(self._no_photos + 1, 99)
 
         elif Pin.five in pin_input:
             self._no_photos = 36
