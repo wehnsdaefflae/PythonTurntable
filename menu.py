@@ -4,7 +4,7 @@ import enum
 import random
 import time
 from collections import deque
-from typing import Dict, Optional, Type
+from typing import Dict, Optional, Type, Set
 from PIL import Image, ImageDraw  # , ImageFont
 
 import Adafruit_GPIO.SPI as SPI
@@ -55,7 +55,7 @@ class Menu:
     def draw(self):
         raise NotImplementedError()
 
-    def send_input(self, pin_input: Pin):
+    def send_input(self, pin_input: Set[Pin]):
         raise NotImplementedError()
 
 
@@ -68,31 +68,33 @@ class AdaFruitMenu:
         self._current_menu = main_menu
 
         RPi.GPIO.setmode(RPi.GPIO.BCM)
-        RPi.GPIO.setup(tuple(_each_pin.value for _each_pin in self._pins), RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
+        RPi.GPIO.setup(tuple(_each_pin.value for _each_pin in self._pins), RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
 
-    def button_pressed(self) -> Optional[Pin]:
+    def buttons_pressed(self) -> Set[Pin]:
+        pressed = set()
         for _each_pin in self._pins:
             value = RPi.GPIO.input(_each_pin.value)
             print("{:s}: {:s}".format(_each_pin.name, str(value)))
             if value:
-                return _each_pin
+                pressed.add(_each_pin)
 
-        return None
+        return pressed
 
     def loop(self):
         while True:
-            pin_input = self.button_pressed()
-            if pin_input is not None:
-                print("button {:s} has been pressed".format(pin_input.name))
+            pressed = self.buttons_pressed()
+            if 0 < len(pressed):
+                for _b in self._pins:
+                    print("button {:s} pressed: {:s}".format(_b.name, _b in pressed))
 
-                if pin_input == self._back_pin:
+                if self._back_pin in pressed:
                     if 0 < len(self._last_menu):
                         self._current_menu = self._last_menu.pop()
 
                 else:
-                    self._current_menu.send_input(pin_input)
+                    self._current_menu.send_input(pressed)
 
-                    new_menu = self._current_menu.sub_menus.get(pin_input)
+                    new_menu = self._current_menu.sub_menus.get(pressed)
                     if new_menu is None:
                         pass
                         # time.sleep(.01)
@@ -114,8 +116,9 @@ class MainMenu(Menu):
         Display.draw.text((64, 32), self._text)
         Display.display.display()
 
-    def send_input(self, pin_input: Pin):
-        self._text = "{:.04f}".format(random.random())
+    def send_input(self, pin_input: Set[Pin]):
+        if 0 < len(pin_input):
+            self._text = "{:.04f}".format(random.random())
 
 
 def main():
