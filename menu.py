@@ -1,3 +1,5 @@
+import RPi.GPIO
+
 import enum
 import random
 import time
@@ -5,9 +7,8 @@ from collections import deque
 from typing import Dict, Optional, Type
 from PIL import Image, ImageDraw  # , ImageFont
 
+import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
-
-import RPi.GPIO
 
 
 class Display:
@@ -67,7 +68,7 @@ class AdaFruitMenu:
         self._current_menu = main_menu
 
         RPi.GPIO.setmode(RPi.GPIO.BCM)
-        RPi.GPIO.setup(tuple(_each_pin.value for _each_pin in self._pins), RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
+        RPi.GPIO.setup(tuple(_each_pin.value for _each_pin in self._pins), RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
 
     def button_pressed(self) -> Optional[Pin]:
         for _each_pin in self._pins:
