@@ -89,11 +89,12 @@ class AdaFruitMenu:
                     self._current_menu.send_input(pin_input)
 
                     new_menu = self._current_menu.sub_menus.get(pin_input)
-                    if new_menu is not None:
+                    if new_menu is None:
+                        time.sleep(.01)
+
+                    else:
                         self._last_menu.append(self._current_menu)
                         self._current_menu = new_menu
-
-                    time.sleep(.01)
 
             self._current_menu.draw()
 
