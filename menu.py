@@ -261,6 +261,7 @@ class MainMenu(Menu):
             self._move_distance(segment, speed_fun=MotorControl.speed_function)
 
             self._progress += segment
+            self.draw()
 
             if _i < no_photos - 1:
                 time.sleep(1.)
