@@ -11,6 +11,35 @@ import Adafruit_SSD1306
 RPi.GPIO.setmode(RPi.GPIO.BCM)
 
 
+class Pin(enum.Enum):
+    # BCM layout!
+    up = 17
+    down = 22
+    left = 27
+    right = 23
+
+    center = 4
+
+    five = 5
+    six = 6
+
+
+class ControlState:
+    RPi.GPIO.setup(tuple(_each_pin.value for _each_pin in Pin), RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
+
+    _pressed = set()
+
+    @staticmethod
+    def get_inputs() -> Set[Pin]:
+        for _each_pin in Pin:
+            if RPi.GPIO.input(_each_pin.value):
+                ControlState._pressed.discard(_each_pin)
+            else:
+                ControlState._pressed.add(_each_pin)
+
+        return ControlState._pressed
+
+
 class MotorControl:
     # assign GPIO pins for motor
     motor_channel = 16, 20, 21, 19
@@ -48,23 +77,6 @@ class MotorControl:
         time.sleep(delay)
 
     @staticmethod
-    def move_distance(distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
-        ratio = 360. / 512.
-        distance_abs = abs(distance_deg)
-
-        current_total = 0.
-        if 0. < distance_deg:
-            while current_total < distance_abs:
-                current_speed = speed_fun(current_total, distance_abs)
-                MotorControl.step_forward(current_speed)
-                current_total += ratio
-        else:
-            while current_total < distance_abs:
-                current_speed = speed_fun(current_total, distance_abs)
-                MotorControl.step_backward(current_speed)
-                current_total += ratio
-
-    @staticmethod
     def trigger_shot():
         print("shot!")
 
@@ -86,37 +98,6 @@ class MotorControl:
 
         return max_speed
 
-    @staticmethod
-    def start_recording(no_photos: int):
-        if no_photos < 1:
-            return
-
-        if no_photos >= 360:
-            print("please select a number below 360")
-
-        segment = 360. / no_photos
-        for _i in range(no_photos):
-            MotorControl.trigger_shot()
-            print("{:d}/{:d}".format(_i + 1, no_photos))
-            MotorControl.move_distance(segment, speed_fun=MotorControl.speed_function)
-            if _i < no_photos - 1:
-                time.sleep(1.)
-
-        print("done!")
-
-    @staticmethod
-    def test_distance_movement():
-        while True:
-            selected_speed = float(input("speed [-500, 500]: "))
-            selected_distance = float(input("distance [0, 360]: "))
-            MotorControl.move_distance(selected_distance, speed_fun=lambda _d, _t: selected_speed)
-
-    @staticmethod
-    def test_full_circle():
-        while True:
-            selected_no_photos = int(input("number of photos: "))
-            MotorControl.start_recording(selected_no_photos)
-
 
 class Display:
     display = Adafruit_SSD1306.SSD1306_128_64(rst=24)
@@ -131,19 +112,6 @@ class Display:
     draw = ImageDraw.Draw(image)
 
     font = ImageFont.load_default()
-
-
-class Pin(enum.Enum):
-    # BCM layout!
-    up = 17
-    down = 22
-    left = 27
-    right = 23
-
-    center = 4
-
-    five = 5
-    six = 6
 
 
 class Menu:
@@ -173,47 +141,16 @@ class Menu:
         Display.display.image(Display.image)
         Display.display.display()
 
-    def send_input(self, pin_input: Set[Pin]):
+    def check_input(self):
         raise NotImplementedError()
 
 
-class ControlState:
-    _pressed = set()
-
-    @staticmethod
-    def get_inputs() -> Set[Pin]:
-        for _each_pin in Pin:
-            if RPi.GPIO.input(_each_pin.value):
-                ControlState._pressed.discard(_each_pin)
-            else:
-                ControlState._pressed.add(_each_pin)
-
-        return ControlState._pressed
-
-
 class AdaFruitMenu:
-    def __init__(self, main_menu: Menu, pins: Type[Pin]):
-        self._pins = pins
-        self._back_pin = self._pins.six
-
+    def __init__(self, main_menu: Menu):
         self._current_menu = main_menu
-        self._pressed = set()
-
-        RPi.GPIO.setup(tuple(_each_pin.value for _each_pin in self._pins), RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_UP)
-
-    def _update_input_state(self):
-        for _each_pin in self._pins:
-            if RPi.GPIO.input(_each_pin.value):
-                self._pressed.discard(_each_pin)
-            else:
-                self._pressed.add(_each_pin)
 
     def loop(self):
         while True:
-            self._update_input_state()
-
-            # self._current_menu.send_input(self._pressed)
-            self._current_menu.send_input(ControlState.get_inputs())
             self._current_menu.draw()
 
             time.sleep(.01)
@@ -224,7 +161,6 @@ class MainMenu(Menu):
         super().__init__()
         self._no_photos = 36
         self._progress = -1.
-        self._cancel = False
 
     def _draw(self):
         if self._progress < 0.:
@@ -243,7 +179,7 @@ class MainMenu(Menu):
             Display.draw.arc((15, 20, Display.display.width - 5, Display.display.height - 10), 0., self._progress, fill=255, width=1)
             Display.draw.text((5, 30), "abort", font=Display.font, fill=255)
 
-    def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
+    def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.) -> float:
         ratio = 360. / 512.
         distance_abs = abs(distance_deg)
 
@@ -251,16 +187,24 @@ class MainMenu(Menu):
         if 0. < distance_deg:
             while current_total < distance_abs:
                 current_speed = speed_fun(current_total, distance_abs)
-                # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_forward(current_speed)
                 current_total += ratio
+
+                control_state = ControlState.get_inputs()
+                if Pin.center in control_state:
+                    return -1.
 
         else:
             while current_total < distance_abs:
                 current_speed = speed_fun(current_total, distance_abs)
-                # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_backward(current_speed)
                 current_total += ratio
+
+                control_state = ControlState.get_inputs()
+                if Pin.center in control_state:
+                    return -1.
+
+        return current_total
 
     def _start_recording(self, no_photos: int):
         if no_photos < 1:
@@ -277,21 +221,22 @@ class MainMenu(Menu):
             MotorControl.trigger_shot()
             print("{:d}/{:d}".format(_i + 1, no_photos))
 
-            self._move_distance(segment, speed_fun=MotorControl.speed_function)
+            distance = self._move_distance(segment, speed_fun=MotorControl.speed_function)
+            if distance < 0.:
+                print("cancelled!")
+                break
 
             self._progress += segment
 
             if _i < no_photos - 1:
                 time.sleep(1.)
 
-            if self._cancel:
-                self._cancel = False
-                break
-
         self._progress = -1.
         print("done!")
 
-    def send_input(self, pin_input: Set[Pin]):
+    def check_input(self):
+        pin_input = ControlState.get_inputs()
+
         if self._progress < .0:
             if Pin.up in pin_input:
                 self._no_photos = min(self._no_photos + 5, 359)
@@ -312,16 +257,12 @@ class MainMenu(Menu):
                 print("starting {:0d} photos".format(self._no_photos))
                 self._start_recording(self._no_photos)
 
-        else:
-            if Pin.center in pin_input:
-                self._cancel = True
-
 
 def main():
     Display.display.clear()
 
     main_menu = MainMenu()
-    ada_menu = AdaFruitMenu(main_menu, Pin)
+    ada_menu = AdaFruitMenu(main_menu)
 
     try:
         ada_menu.loop()
