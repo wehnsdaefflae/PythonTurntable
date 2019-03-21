@@ -213,7 +213,7 @@ class MainMenu(Menu):
         self._progress = -1.
 
     def _draw(self):
-        if self._progress < 0.:
+        if 0. >= self._progress:
             Display.draw.text((10, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
 
             Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
@@ -225,7 +225,7 @@ class MainMenu(Menu):
             Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
 
         else:
-            Display.draw.arc((0, 0, Display.display.height, Display.display.width), 0., self._progress * 360., fill=255, width=1)
+            Display.draw.arc((0, 0, Display.display.width, Display.display.height), 0., self._progress, fill=255, width=1)
 
     def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
         ratio = 360. / 512.
@@ -238,7 +238,7 @@ class MainMenu(Menu):
                 # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_forward(current_speed)
                 current_total += ratio
-                self._progress = current_total / distance_abs
+                self._progress += ratio
                 self.draw()
         else:
             while current_total < distance_abs:
@@ -246,7 +246,7 @@ class MainMenu(Menu):
                 # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_backward(current_speed)
                 current_total += ratio
-                self._progress = current_total / distance_abs
+                self._progress += ratio
                 self.draw()
 
     def _start_recording(self, no_photos: int):
@@ -264,7 +264,7 @@ class MainMenu(Menu):
             if _i < no_photos - 1:
                 time.sleep(1.)
 
-        self._progress = -1
+        self._progress = 0.
         print("done!")
 
     def send_input(self, pin_input: Set[Pin]):
