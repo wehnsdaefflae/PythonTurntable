@@ -225,11 +225,13 @@ class MainMenu(Menu):
             Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
 
         else:
-            Display.draw.arc((0, 0, Display.display.width, Display.display.height), 0., self._progress, fill=255, width=1)
+            Display.draw.arc((10, 10, Display.display.width - 10, Display.display.height - 10), 0., self._progress, fill=255, width=1)
 
     def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
         ratio = 360. / 512.
         distance_abs = abs(distance_deg)
+
+        last = time.time()
 
         current_total = 0.
         if 0. < distance_deg:
@@ -239,7 +241,11 @@ class MainMenu(Menu):
                 MotorControl.step_forward(current_speed)
                 current_total += ratio
                 self._progress += ratio
-                self.draw()
+
+                now = time.time()
+                if now - last >= 1.:
+                    self.draw()
+                    last = now
         else:
             while current_total < distance_abs:
                 current_speed = speed_fun(current_total, distance_abs)
@@ -247,7 +253,11 @@ class MainMenu(Menu):
                 MotorControl.step_backward(current_speed)
                 current_total += ratio
                 self._progress += ratio
-                self.draw()
+
+                now = time.time()
+                if now - last >= 1.:
+                    self.draw()
+                    last = now
 
     def _start_recording(self, no_photos: int):
         if no_photos < 1:
