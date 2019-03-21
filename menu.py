@@ -239,6 +239,7 @@ class MainMenu(Menu):
                 MotorControl.step_forward(current_speed)
                 current_total += ratio
                 self._progress = current_total / distance_abs
+                self.draw()
         else:
             while current_total < distance_abs:
                 current_speed = speed_fun(current_total, distance_abs)
@@ -246,6 +247,7 @@ class MainMenu(Menu):
                 MotorControl.step_backward(current_speed)
                 current_total += ratio
                 self._progress = current_total / distance_abs
+                self.draw()
 
     def _start_recording(self, no_photos: int):
         if no_photos < 1:
