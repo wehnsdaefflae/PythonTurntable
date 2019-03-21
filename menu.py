@@ -167,12 +167,12 @@ class MainMenu(Menu):
 
     def _draw(self):
         if self._progress < 0.:
-            Display.draw.text((5, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
+            Display.draw.text((50, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
 
-            Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
-            Display.draw.text((40, 40), "-5", font=Display.font, fill=155)
-            Display.draw.text((30, 30), "-1", font=Display.font, fill=155)
-            Display.draw.text((50, 30), "+1", font=Display.font, fill=155)
+            Display.draw.text((15, 20), "+5", font=Display.font, fill=155)
+            Display.draw.text((15, 40), "-5", font=Display.font, fill=155)
+            Display.draw.text((5, 30), "-1", font=Display.font, fill=155)
+            Display.draw.text((25, 30), "+1", font=Display.font, fill=155)
 
             Display.draw.text((80, 20), "confirm", font=Display.font, fill=155)
             Display.draw.text((80, 40), "reset", font=Display.font, fill=155)
