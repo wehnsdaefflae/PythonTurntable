@@ -134,7 +134,12 @@ class Menu:
     def _draw(self):
         raise NotImplementedError()
 
-    def draw(self):
+    def _check_input(self):
+        raise NotImplementedError()
+
+    def iterate(self):
+        self._check_input()
+
         Display.display.clear()
         Display.draw.rectangle((0, 0, Display.width, Display.height), outline=0, fill=0)
 
@@ -143,9 +148,6 @@ class Menu:
         Display.display.image(Display.image)
         Display.display.display()
 
-    def check_input(self):
-        raise NotImplementedError()
-
 
 class AdaFruitMenu:
     def __init__(self, main_menu: Menu):
@@ -153,7 +155,7 @@ class AdaFruitMenu:
 
     def loop(self):
         while True:
-            self._current_menu.draw()
+            self._current_menu.iterate()
 
             time.sleep(.01)
 
@@ -218,7 +220,7 @@ class MainMenu(Menu):
         self._progress = 0.
         segment = 360. / no_photos
         for _i in range(no_photos):
-            self.draw()
+            self.iterate()
 
             MotorControl.trigger_shot()
             print("{:d}/{:d}".format(_i + 1, no_photos))
@@ -236,7 +238,7 @@ class MainMenu(Menu):
         self._progress = -1.
         print("done!")
 
-    def check_input(self):
+    def _check_input(self):
         pin_input = ControlState.get_inputs()
 
         if self._progress < .0:
