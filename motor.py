@@ -99,6 +99,7 @@ class MotorControl:
             MotorControl.move_distance(segment, speed_fun=MotorControl.speed_function)
             if _i < no_photos - 1:
                 time.sleep(1.)
+
         print("done!")
 
     @staticmethod
