@@ -32,7 +32,9 @@ class ControlState:
     @staticmethod
     def get_inputs() -> Set[Pin]:
         for _each_pin in Pin:
-            if RPi.GPIO.input(_each_pin.value):
+            state = RPi.GPIO.input(_each_pin.value)
+            print("{:s}: {:s}".format(_each_pin.name, str(state)))
+            if state:
                 ControlState._pressed.discard(_each_pin)
             else:
                 ControlState._pressed.add(_each_pin)
