@@ -179,7 +179,7 @@ class MainMenu(Menu):
 
         else:
             Display.draw.text((20, 5), "finished {:03d}/{:03d}".format(round(self._no_photos * self._progress / 360.), self._no_photos), font=Display.font, fill=255)
-            Display.draw.arc((15, 20, Display.display.width - 5, Display.display.height - 10), 0., self._progress, fill=255, width=1)
+            Display.draw.arc((50, 20, Display.display.width - 5, Display.display.height - 10), 0., self._progress, fill=255, width=1)
             Display.draw.text((5, 30), "abort", font=Display.font, fill=255)
 
     def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.) -> float:
