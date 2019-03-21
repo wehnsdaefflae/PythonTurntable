@@ -106,6 +106,19 @@ class MotorControl:
 
         print("done!")
 
+    @staticmethod
+    def test_distance_movement():
+        while True:
+            selected_speed = float(input("speed [-500, 500]: "))
+            selected_distance = float(input("distance [0, 360]: "))
+            MotorControl.move_distance(selected_distance, speed_fun=lambda _d, _t: selected_speed)
+
+    @staticmethod
+    def test_full_circle():
+        while True:
+            selected_no_photos = int(input("number of photos: "))
+            MotorControl.start_recording(selected_no_photos)
+
 
 class Display:
     display = Adafruit_SSD1306.SSD1306_128_64(rst=24)
@@ -197,17 +210,60 @@ class MainMenu(Menu):
     def __init__(self):
         super().__init__()
         self._no_photos = 36
+        self._progress = -1.
 
     def _draw(self):
-        Display.draw.text((10, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
+        if self._progress < 0.:
+            Display.draw.text((10, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
 
-        Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
-        Display.draw.text((40, 40), "-5", font=Display.font, fill=155)
-        Display.draw.text((30, 30), "-1", font=Display.font, fill=155)
-        Display.draw.text((50, 30), "+1", font=Display.font, fill=155)
+            Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
+            Display.draw.text((40, 40), "-5", font=Display.font, fill=155)
+            Display.draw.text((30, 30), "-1", font=Display.font, fill=155)
+            Display.draw.text((50, 30), "+1", font=Display.font, fill=155)
 
-        Display.draw.text((80, 20), "confirm", font=Display.font, fill=155)
-        Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
+            Display.draw.text((80, 20), "confirm", font=Display.font, fill=155)
+            Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
+
+        else:
+            Display.draw.arc((0, 0, Display.display.height, Display.display.width), 0., self._progress * 360., fill=255, width=1)
+
+    def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
+        ratio = 360. / 512.
+        distance_abs = abs(distance_deg)
+
+        current_total = 0.
+        if 0. < distance_deg:
+            while current_total < distance_abs:
+                current_speed = speed_fun(current_total, distance_abs)
+                # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
+                MotorControl.step_forward(current_speed)
+                current_total += ratio
+                self._progress = current_total / distance_abs
+        else:
+            while current_total < distance_abs:
+                current_speed = speed_fun(current_total, distance_abs)
+                # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
+                MotorControl.step_backward(current_speed)
+                current_total += ratio
+                self._progress = current_total / distance_abs
+
+    def _start_recording(self, no_photos: int):
+        if no_photos < 1:
+            return
+
+        if no_photos >= 360:
+            print("please select a number below 360")
+
+        segment = 360. / no_photos
+        for _i in range(no_photos):
+            MotorControl.trigger_shot()
+            print("{:d}/{:d}".format(_i + 1, no_photos))
+            self._move_distance(segment, speed_fun=MotorControl.speed_function)
+            if _i < no_photos - 1:
+                time.sleep(1.)
+
+        self._progress = -1
+        print("done!")
 
     def send_input(self, pin_input: Set[Pin]):
         if Pin.up in pin_input:
@@ -227,7 +283,7 @@ class MainMenu(Menu):
 
         elif Pin.six in pin_input:
             print("starting {:0d} photos".format(self._no_photos))
-            MotorControl.start_recording(self._no_photos)
+            self._start_recording(self._no_photos)
 
 
 def main():
