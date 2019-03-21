@@ -214,7 +214,7 @@ class MainMenu(Menu):
 
     def _draw(self):
         if 0. >= self._progress:
-            Display.draw.text((10, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
+            Display.draw.text((5, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
 
             Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
             Display.draw.text((40, 40), "-5", font=Display.font, fill=155)
@@ -225,8 +225,9 @@ class MainMenu(Menu):
             Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
 
         else:
-            Display.draw.text((10, 10), "finished {:03d}/{:03d}".format(round(self._no_photos * self._progress / 360.), self._no_photos), font=Display.font, fill=255)
+            Display.draw.text((15, 5), "finished {:03d}/{:03d}".format(round(self._no_photos * self._progress / 360.), self._no_photos), font=Display.font, fill=255)
             Display.draw.arc((10, 20, Display.display.width - 10, Display.display.height - 10), 0., self._progress, fill=255, width=1)
+            # TODO: add cancel
 
     def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
         ratio = 360. / 512.
@@ -256,12 +257,13 @@ class MainMenu(Menu):
 
         segment = 360. / no_photos
         for _i in range(no_photos):
+            self.draw()
+
             MotorControl.trigger_shot()
             print("{:d}/{:d}".format(_i + 1, no_photos))
             self._move_distance(segment, speed_fun=MotorControl.speed_function)
 
             self._progress += segment
-            self.draw()
 
             if _i < no_photos - 1:
                 time.sleep(1.)
