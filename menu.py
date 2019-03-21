@@ -210,7 +210,7 @@ class MainMenu(Menu):
     def __init__(self):
         super().__init__()
         self._no_photos = 36
-        self._progress = -1.
+        self._progress = 0.
 
     def _draw(self):
         if 0. >= self._progress:
@@ -225,13 +225,12 @@ class MainMenu(Menu):
             Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
 
         else:
-            Display.draw.arc((10, 10, Display.display.width - 10, Display.display.height - 10), 0., self._progress, fill=255, width=1)
+            Display.draw.text((10, 10), "finished {:03d}/{:03d}".format(round(self._no_photos * self._progress / 360.), self._no_photos), font=Display.font, fill=255)
+            Display.draw.arc((10, 20, Display.display.width - 10, Display.display.height - 10), 0., self._progress, fill=255, width=1)
 
     def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
         ratio = 360. / 512.
         distance_abs = abs(distance_deg)
-
-        last = time.time()
 
         current_total = 0.
         if 0. < distance_deg:
@@ -240,24 +239,13 @@ class MainMenu(Menu):
                 # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_forward(current_speed)
                 current_total += ratio
-                self._progress += ratio
 
-                now = time.time()
-                if now - last >= 1.:
-                    self.draw()
-                    last = now
         else:
             while current_total < distance_abs:
                 current_speed = speed_fun(current_total, distance_abs)
                 # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_backward(current_speed)
                 current_total += ratio
-                self._progress += ratio
-
-                now = time.time()
-                if now - last >= 1.:
-                    self.draw()
-                    last = now
 
     def _start_recording(self, no_photos: int):
         if no_photos < 1:
@@ -271,6 +259,9 @@ class MainMenu(Menu):
             MotorControl.trigger_shot()
             print("{:d}/{:d}".format(_i + 1, no_photos))
             self._move_distance(segment, speed_fun=MotorControl.speed_function)
+
+            self._progress += segment
+
             if _i < no_photos - 1:
                 time.sleep(1.)
 
