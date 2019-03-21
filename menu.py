@@ -210,10 +210,10 @@ class MainMenu(Menu):
     def __init__(self):
         super().__init__()
         self._no_photos = 36
-        self._progress = 0.
+        self._progress = -1.
 
     def _draw(self):
-        if 0. >= self._progress:
+        if self._progress < 0.:
             Display.draw.text((5, 30), "{:03d}".format(self._no_photos), font=Display.font, fill=255)
 
             Display.draw.text((40, 20), "+5", font=Display.font, fill=155)
@@ -255,6 +255,7 @@ class MainMenu(Menu):
         if no_photos >= 360:
             print("please select a number below 360")
 
+        self._progress = 0.
         segment = 360. / no_photos
         for _i in range(no_photos):
             self.draw()
@@ -268,7 +269,7 @@ class MainMenu(Menu):
             if _i < no_photos - 1:
                 time.sleep(1.)
 
-        self._progress = 0.
+        self._progress = -1.
         print("done!")
 
     def send_input(self, pin_input: Set[Pin]):
