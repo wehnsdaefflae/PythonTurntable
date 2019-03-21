@@ -211,6 +211,7 @@ class MainMenu(Menu):
         super().__init__()
         self._no_photos = 36
         self._progress = -1.
+        self._cancel = False
 
     def _draw(self):
         if self._progress < 0.:
@@ -225,9 +226,9 @@ class MainMenu(Menu):
             Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
 
         else:
-            Display.draw.text((15, 5), "finished {:03d}/{:03d}".format(round(self._no_photos * self._progress / 360.), self._no_photos), font=Display.font, fill=255)
-            Display.draw.arc((10, 20, Display.display.width - 10, Display.display.height - 10), 0., self._progress, fill=255, width=1)
-            # TODO: add cancel
+            Display.draw.text((20, 5), "finished {:03d}/{:03d}".format(round(self._no_photos * self._progress / 360.), self._no_photos), font=Display.font, fill=255)
+            Display.draw.arc((15, 20, Display.display.width - 5, Display.display.height - 10), 0., self._progress, fill=255, width=1)
+            Display.draw.text((5, 30), "abort", font=Display.font, fill=255)
 
     def _move_distance(self, distance_deg: float, speed_fun: Callable[[float, float], float] = lambda _d, _t: 100.):
         ratio = 360. / 512.
@@ -269,28 +270,37 @@ class MainMenu(Menu):
             if _i < no_photos - 1:
                 time.sleep(1.)
 
+            if self._cancel:
+                self._cancel = False
+                break
+
         self._progress = -1.
         print("done!")
 
     def send_input(self, pin_input: Set[Pin]):
-        if Pin.up in pin_input:
-            self._no_photos = min(self._no_photos + 5, 359)
+        if self._progress < .0:
+            if Pin.up in pin_input:
+                self._no_photos = min(self._no_photos + 5, 359)
 
-        elif Pin.down in pin_input:
-            self._no_photos = max(self._no_photos - 5, 0)
+            elif Pin.down in pin_input:
+                self._no_photos = max(self._no_photos - 5, 0)
 
-        elif Pin.left in pin_input:
-            self._no_photos = max(self._no_photos - 1, 0)
+            elif Pin.left in pin_input:
+                self._no_photos = max(self._no_photos - 1, 0)
 
-        elif Pin.right in pin_input:
-            self._no_photos = min(self._no_photos + 1, 359)
+            elif Pin.right in pin_input:
+                self._no_photos = min(self._no_photos + 1, 359)
 
-        elif Pin.five in pin_input:
-            self._no_photos = 36
+            elif Pin.five in pin_input:
+                self._no_photos = 36
 
-        elif Pin.six in pin_input:
-            print("starting {:0d} photos".format(self._no_photos))
-            self._start_recording(self._no_photos)
+            elif Pin.six in pin_input:
+                print("starting {:0d} photos".format(self._no_photos))
+                self._start_recording(self._no_photos)
+
+        else:
+            if Pin.center in pin_input:
+                self._cancel = True
 
 
 def main():
