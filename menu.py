@@ -33,7 +33,6 @@ class ControlState:
     def get_inputs() -> Set[Pin]:
         for _each_pin in Pin:
             state = RPi.GPIO.input(_each_pin.value)
-            print("{:s}: {:s}".format(_each_pin.name, str(state)))
             if state:
                 ControlState._pressed.discard(_each_pin)
             else:
