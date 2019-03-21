@@ -1,7 +1,6 @@
 import RPi.GPIO
 
 import enum
-import random
 import time
 from typing import Dict, Optional, Type, Set, Callable
 from PIL import Image, ImageDraw, ImageFont
@@ -232,7 +231,6 @@ class MainMenu(Menu):
 
 
 def main():
-    RPi.GPIO.cleanup()
     Display.display.clear()
 
     main_menu = MainMenu()
@@ -243,9 +241,12 @@ def main():
 
     except KeyboardInterrupt as e:
         Display.display.clear()
-        RPi.GPIO.cleanup()
         raise e
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+
+    finally:
+        RPi.GPIO.cleanup()
