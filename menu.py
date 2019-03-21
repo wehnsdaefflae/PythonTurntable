@@ -56,13 +56,11 @@ class MotorControl:
         if 0. < distance_deg:
             while current_total < distance_abs:
                 current_speed = speed_fun(current_total, distance_abs)
-                # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_forward(current_speed)
                 current_total += ratio
         else:
             while current_total < distance_abs:
                 current_speed = speed_fun(current_total, distance_abs)
-                # print("{:06.2f}° -> {:06.2f}".format(current_total, current_speed))
                 MotorControl.step_backward(current_speed)
                 current_total += ratio
 
@@ -179,6 +177,20 @@ class Menu:
         raise NotImplementedError()
 
 
+class ControlState:
+    _pressed = set()
+
+    @staticmethod
+    def get_inputs() -> Set[Pin]:
+        for _each_pin in Pin:
+            if RPi.GPIO.input(_each_pin.value):
+                ControlState._pressed.discard(_each_pin)
+            else:
+                ControlState._pressed.add(_each_pin)
+
+        return ControlState._pressed
+
+
 class AdaFruitMenu:
     def __init__(self, main_menu: Menu, pins: Type[Pin]):
         self._pins = pins
@@ -200,7 +212,8 @@ class AdaFruitMenu:
         while True:
             self._update_input_state()
 
-            self._current_menu.send_input(self._pressed)
+            # self._current_menu.send_input(self._pressed)
+            self._current_menu.send_input(ControlState.get_inputs())
             self._current_menu.draw()
 
             time.sleep(.01)
@@ -223,7 +236,7 @@ class MainMenu(Menu):
             Display.draw.text((50, 30), "+1", font=Display.font, fill=155)
 
             Display.draw.text((80, 20), "confirm", font=Display.font, fill=155)
-            Display.draw.text((70, 40), "reset", font=Display.font, fill=155)
+            Display.draw.text((80, 40), "reset", font=Display.font, fill=155)
 
         else:
             Display.draw.text((20, 5), "finished {:03d}/{:03d}".format(round(self._no_photos * self._progress / 360.), self._no_photos), font=Display.font, fill=255)
@@ -263,6 +276,7 @@ class MainMenu(Menu):
 
             MotorControl.trigger_shot()
             print("{:d}/{:d}".format(_i + 1, no_photos))
+
             self._move_distance(segment, speed_fun=MotorControl.speed_function)
 
             self._progress += segment
