@@ -276,7 +276,7 @@ class MainMenu(Menu):
                 self._no_photos = min(self._no_photos + 1, 359)
 
             elif Pin.five in pin_input:
-                self._no_photos = 36
+                self._no_photos = self._settings.get("no_photos", 36)
 
             elif Pin.six in pin_input:
                 print("starting {:0d} photos".format(self._no_photos))
