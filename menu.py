@@ -233,10 +233,10 @@ class MainMenu(Menu):
         if no_photos >= 360:
             print("please select a number below 360")
 
-        new_settings = MainMenu._get_settings()
-        new_settings["no_photos"] = no_photos
+        self._settings = MainMenu._get_settings()
+        self._settings["no_photos"] = no_photos
         with open("settings.json", mode="w") as file:
-            json.dump(new_settings, file, sort_keys=True, indent=2)
+            json.dump(self._settings, file, sort_keys=True, indent=2)
 
         self._progress = 0.
         segment = 360. / no_photos
