@@ -1,3 +1,6 @@
+import json
+import os
+
 import RPi.GPIO
 
 import enum
@@ -155,15 +158,21 @@ class AdaFruitMenu:
     def loop(self):
         while True:
             self._current_menu.iterate()
-
             time.sleep(.01)
 
 
 class MainMenu(Menu):
     def __init__(self):
         super().__init__()
-        self._no_photos = 36
         self._progress = -1.
+
+        if os.path.isfile("settings.json"):
+            with open("settings.json", mode="r") as file:
+                self._settings = json.load(file)
+        else:
+            self._settings = dict()
+
+        self._no_photos = self._settings.get("no_photos", 36)
 
     def _draw(self):
         if self._progress < 0.:
@@ -234,6 +243,10 @@ class MainMenu(Menu):
 
             if _i < no_photos - 1:
                 time.sleep(1.)
+
+        self._settings["no_photos"] = no_photos
+        with open("settings.json", mode="w") as file:
+            json.dump(self._settings, file, sort_keys=True, indent=2)
 
         self._progress = -1.
         print("done!")
