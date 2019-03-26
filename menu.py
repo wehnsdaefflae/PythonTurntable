@@ -1,11 +1,12 @@
 import json
 import os
+from json import JSONDecodeError
 
 import RPi.GPIO
 
 import enum
 import time
-from typing import Dict, Optional, Type, Set, Callable
+from typing import Dict, Optional, Type, Set, Callable, Union
 from PIL import Image, ImageDraw, ImageFont
 
 import Adafruit_GPIO.SPI as SPI
@@ -166,13 +167,19 @@ class MainMenu(Menu):
         super().__init__()
         self._progress = -1.
 
-        if os.path.isfile("settings.json"):
-            with open("settings.json", mode="r") as file:
-                self._settings = json.load(file)
-        else:
-            self._settings = dict()
-
+        self._settings = MainMenu._get_settings()
         self._no_photos = self._settings.get("no_photos", 36)
+
+    @staticmethod
+    def _get_settings() -> Dict[str, Union[str, int, float]]:
+        if os.path.isfile("settings.json"):
+            try:
+                with open("settings.json", mode="r") as file:
+                    return json.load(file)
+            except JSONDecodeError:
+                return dict()
+        else:
+            return dict()
 
     def _draw(self):
         if self._progress < 0.:
@@ -226,6 +233,11 @@ class MainMenu(Menu):
         if no_photos >= 360:
             print("please select a number below 360")
 
+        new_settings = MainMenu._get_settings()
+        new_settings["no_photos"] = no_photos
+        with open("settings.json", mode="w") as file:
+            json.dump(new_settings, file, sort_keys=True, indent=2)
+
         self._progress = 0.
         segment = 360. / no_photos
         for _i in range(no_photos):
@@ -243,10 +255,6 @@ class MainMenu(Menu):
 
             if _i < no_photos - 1:
                 time.sleep(1.)
-
-        self._settings["no_photos"] = no_photos
-        with open("settings.json", mode="w") as file:
-            json.dump(self._settings, file, sort_keys=True, indent=2)
 
         self._progress = -1.
         print("done!")
