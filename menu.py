@@ -48,12 +48,14 @@ class ControlState:
 class IRControl:
     ir_channel = 25
     RPi.GPIO.setup(ir_channel, RPi.GPIO.OUT)
+    RPi.GPIO.output(ir_channel, True)
+    time.sleep(1.)
 
     @staticmethod
     def send_signal():
-        RPi.GPIO.output(IRControl.ir_channel, True)
-        time.sleep(1.)
         RPi.GPIO.output(IRControl.ir_channel, False)
+        time.sleep(1.)
+        RPi.GPIO.output(IRControl.ir_channel, True)
         time.sleep(1.)
 
 
