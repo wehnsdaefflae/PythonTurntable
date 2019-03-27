@@ -45,6 +45,18 @@ class ControlState:
         return ControlState._pressed
 
 
+class IRControl:
+    ir_channel = 25
+    RPi.GPIO.setup(ir_channel, RPi.GPIO.OUT)
+
+    @staticmethod
+    def send_signal():
+        RPi.GPIO.output(IRControl.ir_channel, True)
+        time.sleep(1.)
+        RPi.GPIO.output(IRControl.ir_channel, False)
+        time.sleep(1.)
+
+
 class MotorControl:
     # assign GPIO pins for motor
     motor_channel = 16, 20, 21, 19
@@ -83,6 +95,7 @@ class MotorControl:
 
     @staticmethod
     def trigger_shot():
+        IRControl.send_signal()
         print("shot!")
 
     @staticmethod
