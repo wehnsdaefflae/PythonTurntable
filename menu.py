@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 from json import JSONDecodeError
 
 import RPi.GPIO
@@ -53,9 +54,11 @@ class IRControl:
 
     @staticmethod
     def send_signal():
-        RPi.GPIO.output(IRControl.ir_channel, False)
-        time.sleep(1.)
-        RPi.GPIO.output(IRControl.ir_channel, True)
+        #RPi.GPIO.output(IRControl.ir_channel, False)
+        #time.sleep(1.)
+        #RPi.GPIO.output(IRControl.ir_channel, True)
+
+        subprocess.call("irsend SEND_ONCE Nikon2 shutter", shell=True)
         time.sleep(1.)
 
 
