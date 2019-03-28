@@ -53,7 +53,7 @@ class IRControl:
     time.sleep(1.)
 
     @staticmethod
-    def send_debug_signal():
+    def send_signal():
         RPi.GPIO.output(IRControl.ir_channel, False)
         time.sleep(1.)
         RPi.GPIO.output(IRControl.ir_channel, True)
@@ -62,7 +62,7 @@ class IRControl:
         time.sleep(1.)
 
     @staticmethod
-    def send_signal():
+    def _send_signal():
         RPi.GPIO.output(IRControl.ir_channel, False)
         time.sleep(2000.e-6)
         RPi.GPIO.output(IRControl.ir_channel, True)
