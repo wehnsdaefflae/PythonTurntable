@@ -53,12 +53,31 @@ class IRControl:
     time.sleep(1.)
 
     @staticmethod
-    def send_signal():
+    def send_debug_signal():
         RPi.GPIO.output(IRControl.ir_channel, False)
         time.sleep(1.)
         RPi.GPIO.output(IRControl.ir_channel, True)
 
         # subprocess.call("irsend SEND_ONCE Nikon2 shutter", shell=True)
+        time.sleep(1.)
+
+    @staticmethod
+    def send_signal():
+        RPi.GPIO.output(IRControl.ir_channel, False)
+        time.sleep(.0002)
+        RPi.GPIO.output(IRControl.ir_channel, True)
+
+        # Pulses:
+        # ON	2000 us
+        # OFF	27830 us
+        # ON	400 us
+        # OFF	1580 us
+        # ON	400 us
+        # OFF	3580 us
+        # ON	400 us
+        # Repeats again after 63.2 ms
+        # subprocess.call("irsend SEND_ONCE Nikon2 shutter", shell=True)
+
         time.sleep(1.)
 
 
@@ -188,6 +207,8 @@ class MainMenu(Menu):
         self._settings = MainMenu._get_settings()
         self._no_photos = self._settings.get("no_photos", 36)
 
+        self.table_to_motor_gear_ratio = 12
+
     @staticmethod
     def _get_settings() -> Dict[str, Union[str, int, float]]:
         if os.path.isfile("settings.json"):
@@ -257,7 +278,7 @@ class MainMenu(Menu):
             json.dump(self._settings, file, sort_keys=True, indent=2)
 
         self._progress = 0.
-        segment = 360. / no_photos
+        segment = self.table_to_motor_gear_ratio * 360. / no_photos
         for _i in range(no_photos):
             self.iterate()
 
