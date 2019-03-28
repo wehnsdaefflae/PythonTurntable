@@ -64,8 +64,21 @@ class IRControl:
     @staticmethod
     def send_signal():
         RPi.GPIO.output(IRControl.ir_channel, False)
-        time.sleep(.0002)
+        time.sleep(2000.e-6)
         RPi.GPIO.output(IRControl.ir_channel, True)
+        time.sleep(27830.e-6)
+        RPi.GPIO.output(IRControl.ir_channel, False)
+        time.sleep(400.e-6)
+        RPi.GPIO.output(IRControl.ir_channel, True)
+        time.sleep(1580.e-6)
+        RPi.GPIO.output(IRControl.ir_channel, False)
+        time.sleep(400.e-6)
+        RPi.GPIO.output(IRControl.ir_channel, True)
+        time.sleep(3580.e-6)
+        RPi.GPIO.output(IRControl.ir_channel, False)
+        time.sleep(400.e-6)
+        RPi.GPIO.output(IRControl.ir_channel, True)
+        time.sleep(63.2e-3)
 
         # Pulses:
         # ON	2000 us
