@@ -291,14 +291,14 @@ class MainMenu(Menu):
             json.dump(self._settings, file, sort_keys=True, indent=2)
 
         self._progress = 0.
-        segment = self.table_to_motor_gear_ratio * 360. / no_photos
+        segment = 360. / no_photos
         for _i in range(no_photos):
             self.iterate()
 
             MotorControl.trigger_shot()
             print("{:d}/{:d}".format(_i + 1, no_photos))
 
-            distance = self._move_distance(segment, speed_fun=MotorControl.speed_function)
+            distance = self._move_distance(self.table_to_motor_gear_ratio * segment, speed_fun=MotorControl.speed_function)
             if distance < 0.:
                 print("cancelled!")
                 break
